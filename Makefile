@@ -1,13 +1,13 @@
 sysname := $(shell uname -s)
 
 libs_FreeBSD =
-libs_Linux = -lsctp
-libs_SunOS = -lsocket -lnsl -lsctp
+libs_Linux   = -lsctp
+libs_SunOS   = -lsocket -lnsl -lsctp
 
 all:	sbindx
 
 sbindx: sbindx.c
-	gcc -Wall -g -o $@ $<
+	gcc -Wall -g -o $@ $< $(libs_$(sysname))
 
 clean:
 	$(RM) sbindx
