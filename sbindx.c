@@ -363,35 +363,6 @@ cmd_recv(char *arg)
     return 1;
 }
 
-static void
-hexdump(char *linelead, unsigned char *msg, int msglen)
-{
-            int i, b;
-
-            for (b=0; b < msglen; b += 16)
-            {
-                printf("%s", linelead);
-                for (i=0; i < 16; i++)
-                    if (b+i < msglen) printf("%s%02x", (i==0)?"":" ", msg[b+i]);
-                    else              printf("%s  ", (i==0)?"":" ");
-                printf("   ");
-                for (i=0; i < 16; i++)
-                    if (b+i < msglen)
-                        printf("%c", char_or_dot(msg[b+i]));
-                printf("\n");
-            }
-}
-
-static char
-char_or_dot(unsigned char c)
-{
-    unsigned char uc = (unsigned char)c;
-    if (uc < ' ')
-        return '.';
-    if (uc >= 127)
-        return '.';
-    return c;
-}
 static int
 cmd_sleep(char *arg)
 {
@@ -424,6 +395,36 @@ cmd_usage(char *arg)
     printf("If PORT is omitted, it defaults to previously specified port.\n");
     printf("If PORT never specified, it defaults %s.\n", default_portstr);
     return 1;
+}
+
+static void
+hexdump(char *linelead, unsigned char *msg, int msglen)
+{
+            int i, b;
+
+            for (b=0; b < msglen; b += 16)
+            {
+                printf("%s", linelead);
+                for (i=0; i < 16; i++)
+                    if (b+i < msglen) printf("%s%02x", (i==0)?"":" ", msg[b+i]);
+                    else              printf("%s  ", (i==0)?"":" ");
+                printf("   ");
+                for (i=0; i < 16; i++)
+                    if (b+i < msglen)
+                        printf("%c", char_or_dot(msg[b+i]));
+                printf("\n");
+            }
+}
+
+static char
+char_or_dot(unsigned char c)
+{
+    unsigned char uc = (unsigned char)c;
+    if (uc < ' ')
+        return '.';
+    if (uc >= 127)
+        return '.';
+    return c;
 }
 
 static int
