@@ -1,0 +1,53 @@
+#! /usr/bin/env escript
+%% -*- erlang -*-
+%%! -noinput
+
+-include_lib("kernel/include/inet_sctp.hrl").
+
+main(["4:"++IpPort]) -> go(IpPort, inet);
+main(["6:"++IpPort]) -> go(IpPort, inet6);
+main(_) -> usage().
+
+usage() ->
+    io:format("Usage: sclient 4:Addr[/Port]|6:Addr[/Port]~n"),
+    halt(0).
+
+go(IpPort, Family) ->
+    {Ip,Port} =
+        case string:tokens(IpPort, "/") of
+            [Ip_]          -> {resolve(Ip_,Family), 10499};
+            [Ip_, PortStr] -> {resolve(Ip_,Family), list_to_integer(PortStr)}
+        end,
+    io:format("Connecting to: ~p, ~p~n", [Ip, Port]),
+    case gen_sctp:open([{port,0},{active,true},Family]) of
+        {ok, S} ->
+            case gen_sctp:connect(S, Ip, Port, []) of
+                {ok, #sctp_assoc_change{state=comm_up,assoc_id=AssocId}} ->
+                    io:format("Connected ok~n"),
+                    io:format("Sending first data then 'q'...~n"),
+                    gen_sctp:send(S, AssocId, 0, <<"test msg 1">>),
+                    gen_sctp:send(S, AssocId, 0, <<"test msg 2">>),
+                    gen_sctp:send(S, AssocId, 0, <<"q">>),
+                    gen_sctp:close(S),
+                    io:format("All done.~n"),
+                    halt(0);
+                Err ->
+                    perror("sctp_connect", {Ip, Port, Err}),
+                    halt(1)
+            end;
+        Err ->
+            perror("gen_sctp:open", Err),
+            halt(1)
+    end.
+
+resolve(Host, Family) ->
+    case inet:getaddr(Host, Family) of
+        {ok, Addr} ->
+            Addr;
+        Err ->
+            perror("resolve", {Host, Family, Err}),
+            halt(1)
+    end.
+
+perror(LeadText, Term) ->
+    io:format("~s: ~p~n", [LeadText, Term]).
