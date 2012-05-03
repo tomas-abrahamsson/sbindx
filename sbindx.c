@@ -267,7 +267,7 @@ cmd_sctp_bindx(char *arg)
     if (sctp_bindx(s, (struct sockaddr *)bindx_addrs, addrcnt,
                    SCTP_BINDX_ADD_ADDR) < 0)
     {
-	perror("sctp_bind");
+	perror("sctp_bindx");
 	return 0;
     }
     printf("Calling sctp_bindx...ok, done\n\n");
