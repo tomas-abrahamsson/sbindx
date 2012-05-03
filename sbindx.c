@@ -19,8 +19,8 @@ static int cmd_listen(char *arg);
 static int cmd_recv(char *arg);
 static int cmd_sleep(char *arg);
 static int cmd_usage(char *arg);
-static void hexdump(char *linelead, char *msg, int msglen);
-static char char_or_dot(char c);
+static void hexdump(char *linelead, unsigned char *msg, int msglen);
+static char char_or_dot(unsigned char c);
 static int getaddrport(int family, char *addrstr0, struct addrinfo **addr_res);
 static void print_addr_info(struct addrinfo *addr, char *addrstr);
 static int verify_addr_family_indicator(char *arg);
@@ -299,7 +299,7 @@ cmd_recv(char *arg)
         int poll_done=0;
         int recv_res;
         size_t msgmaxlen=8192;
-        char msg[msgmaxlen];
+        unsigned char msg[msgmaxlen];
         struct sockaddr_storage from;
         socklen_t fromlen;
         struct sctp_sndrcvinfo sinfo;
@@ -364,7 +364,7 @@ cmd_recv(char *arg)
 }
 
 static void
-hexdump(char *linelead, char *msg, int msglen)
+hexdump(char *linelead, unsigned char *msg, int msglen)
 {
             int i, b;
 
@@ -377,13 +377,13 @@ hexdump(char *linelead, char *msg, int msglen)
                 printf("   ");
                 for (i=0; i < 16; i++)
                     if (b+i < msglen)
-                        printf(" %c", char_or_dot(msg[b+i]));
+                        printf("%c", char_or_dot(msg[b+i]));
                 printf("\n");
             }
 }
 
 static char
-char_or_dot(char c)
+char_or_dot(unsigned char c)
 {
     unsigned char uc = (unsigned char)c;
     if (uc < ' ')
