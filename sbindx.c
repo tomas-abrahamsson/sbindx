@@ -153,7 +153,7 @@ getaddrport(int family, char *addrstr0, struct addrinfo **addr_res)
     memset(&hints, '\0', sizeof(hints));
     hints.ai_flags = AI_PASSIVE;
     hints.ai_family = family;
-    hints.ai_socktype = SOCK_SEQPACKET;
+    hints.ai_socktype = SOCK_STREAM;
     gai_res = getaddrinfo(addrstr, portstr, &hints, addr_res);
     if (gai_res == 0 && port == -1)
     {
