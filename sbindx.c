@@ -308,7 +308,7 @@ cmd_recv(char *arg)
         while (!poll_done)
         {
             pfd.fd=s;
-            pfd.events=POLLRDNORM;
+            pfd.events=POLLIN;
             switch (poll(&pfd, 1, -1))
             {
                 case 1:
