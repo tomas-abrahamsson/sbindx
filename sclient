@@ -40,6 +40,11 @@ go(IpPort, Family) ->
             halt(1)
     end.
 
+resolve("{"++_=Host, _Family) ->
+    %% explicitly specified, useful if resolving doesn't seem to work
+    {ok, Tokens, _} = erl_scan:string(Host ++ "."),
+    {ok, Addr} = erl_parse:parse_term(Tokens),
+    Addr;
 resolve(Host, Family) ->
     case inet:getaddr(Host, Family) of
         {ok, Addr} ->
