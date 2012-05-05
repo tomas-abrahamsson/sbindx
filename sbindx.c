@@ -39,11 +39,11 @@ main(int argc, char **argv)
     progname=argv[0];
 
     for (i=1; i < argc; i++)
-	if (!eval_command(argv[i]))
-	{
-	    fprintf(stderr, "Cmd failed. Aborting.\n");
-	    return 1;
-	}
+        if (!eval_command(argv[i]))
+        {
+            fprintf(stderr, "Cmd failed. Aborting.\n");
+            return 1;
+        }
 
     printf("All succeeded.\n");
     return 0;
@@ -65,8 +65,8 @@ eval_command(char *cmd)
     else if ((arg = is_cmd(cmd, "help")))        return cmd_usage(arg);
     else
     {
-	fprintf(stderr, "Invalid cmd: \"%s\"\n", cmd);
-	return 0;
+        fprintf(stderr, "Invalid cmd: \"%s\"\n", cmd);
+        return 0;
     }
 }
 
@@ -75,9 +75,9 @@ is_cmd(char *s, char *cmd)
 {
     int l = strlen(cmd);
     if (strncmp(s, cmd, l) == 0)
-	return s+l;
+        return s+l;
     else
-	return NULL;
+        return NULL;
 }
 
 static int
@@ -87,36 +87,36 @@ cmd_socket(char *arg)
 
     if (arg[0] == '6')
     {
-	printf("Creating an ipv6 socket...\n");
-	if ((s = socket(PF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP)) < 0)
-	{
-	    perror("socket");
-	    return 0;
-	}
-	printf("socket created\n");
+        printf("Creating an ipv6 socket...\n");
+        if ((s = socket(PF_INET6, SOCK_SEQPACKET, IPPROTO_SCTP)) < 0)
+        {
+            perror("socket");
+            return 0;
+        }
+        printf("socket created\n");
     }
     else if (arg[0] == '4')
     {
-	printf("Creating an ipv4 socket...\n");
-	if ((s = socket(PF_INET, SOCK_SEQPACKET, IPPROTO_SCTP)) < 0)
-	{
-	    perror("socket");
-	    return 0;
-	}
-	printf("socket created\n");
+        printf("Creating an ipv4 socket...\n");
+        if ((s = socket(PF_INET, SOCK_SEQPACKET, IPPROTO_SCTP)) < 0)
+        {
+            perror("socket");
+            return 0;
+        }
+        printf("socket created\n");
     }
     else
     {
-	fprintf(stderr, "Invalid socket arg: \"%s\".\n", arg);
-	fprintf(stderr, "Expected 4 | 6.\n");
-	return 0;
+        fprintf(stderr, "Invalid socket arg: \"%s\".\n", arg);
+        fprintf(stderr, "Expected 4 | 6.\n");
+        return 0;
     }
 
     value = 1;
     if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0)
     {
-	perror("setsockopt");
-	return 0;
+        perror("setsockopt");
+        return 0;
     }
     printf("reuseaddr set\n\n");
     return 1;
@@ -136,12 +136,12 @@ getaddrport(int family, char *addrstr0, struct addrinfo **addr_res)
     strcpy(addrstr, addrstr0); /* work on a copy */
     if ((slash = strchr(addrstr, '/')) != NULL)
     {
-	portstr = slash+1;
-	*slash = '\0';
+        portstr = slash+1;
+        *slash = '\0';
     }
     else if (port == -1)
     {
-	portstr = default_portstr; /* default */
+        portstr = default_portstr; /* default */
     }
     else if (port != -1)
     {
@@ -173,10 +173,10 @@ cmd_bind(char *arg)
     printf("binding...\n");
     if (s == -1)
     {
-	fprintf(stderr,
-		"Attempted bind command without previous socket command.\n"
-		"Aborting.\n");
-	return 0;
+        fprintf(stderr,
+                "Attempted bind command without previous socket command.\n"
+                "Aborting.\n");
+        return 0;
     }
 
 
@@ -215,10 +215,10 @@ cmd_sctp_bindx(char *arg)
     printf("sctp_bindx-ing...\n");
     if (s == -1)
     {
-	fprintf(stderr,
-		"Attempted sctp_bindx command without previous socket command.\n"
-		"Aborting.\n");
-	return 0;
+        fprintf(stderr,
+                "Attempted sctp_bindx command without previous socket command.\n"
+                "Aborting.\n");
+        return 0;
     }
 
     s2 = arg;
@@ -267,8 +267,8 @@ cmd_sctp_bindx(char *arg)
     if (sctp_bindx(s, (struct sockaddr *)bindx_addrs, addrcnt,
                    SCTP_BINDX_ADD_ADDR) < 0)
     {
-	perror("sctp_bindx");
-	return 0;
+        perror("sctp_bindx");
+        return 0;
     }
     printf("Calling sctp_bindx...ok, done\n\n");
     return 1;
@@ -369,14 +369,14 @@ cmd_sleep(char *arg)
     int nseconds;
     if (sscanf(arg, "%d", &nseconds) == 1)
     {
-	printf("sleeping %d seconds...\n", nseconds);
-	sleep(nseconds);
-	return 1;
+        printf("sleeping %d seconds...\n", nseconds);
+        sleep(nseconds);
+        return 1;
     }
     else
     {
-	fprintf(stderr, "failed to interpret \"%s\" as an integer.\n", arg);
-	return 0;
+        fprintf(stderr, "failed to interpret \"%s\" as an integer.\n", arg);
+        return 0;
     }
 }
 
@@ -445,45 +445,45 @@ parse_addr(char *arg, char *dest, int *addrlen)
 
     if ((addrstr = is_cmd(arg, "4:")))
     {
-	struct addrinfo *addr_res;
-	int gai_res = getaddrport(AF_INET, addrstr, &addr_res);
+        struct addrinfo *addr_res;
+        int gai_res = getaddrport(AF_INET, addrstr, &addr_res);
 
-	if (gai_res == 0)
-	{
+        if (gai_res == 0)
+        {
             print_addr_info(addr_res, addrstr);
             memmove(dest, addr_res->ai_addr, addr_res->ai_addrlen);
             *addrlen = addr_res->ai_addrlen;
             freeaddrinfo(addr_res);
             return 1;
-	}
-	else
-	{
-	    perror("getaddrinfo");
-	    fprintf(stderr, "getaddrinfo failed for \"%s\": %s\n",
-		    addrstr, gai_strerror(gai_res));
-	    return 0;
-	}
+        }
+        else
+        {
+            perror("getaddrinfo");
+            fprintf(stderr, "getaddrinfo failed for \"%s\": %s\n",
+                    addrstr, gai_strerror(gai_res));
+            return 0;
+        }
     }
     else if ((addrstr = is_cmd(arg, "6:")))
     {
-	struct addrinfo *addr_res;
-	int gai_res = getaddrport(AF_INET6, addrstr, &addr_res);
+        struct addrinfo *addr_res;
+        int gai_res = getaddrport(AF_INET6, addrstr, &addr_res);
 
-	if (gai_res == 0)
-	{
+        if (gai_res == 0)
+        {
             print_addr_info(addr_res, addrstr);
             memmove(dest, addr_res->ai_addr, addr_res->ai_addrlen);
             *addrlen = addr_res->ai_addrlen;
             freeaddrinfo(addr_res);
             return 1;
-	}
-	else
-	{
-	    perror("getaddrinfo");
-	    fprintf(stderr, "getaddrinfo failed for \"%s\": %s\n",
-		    addrstr, gai_strerror(gai_res));
-	    return 0;
-	}
+        }
+        else
+        {
+            perror("getaddrinfo");
+            fprintf(stderr, "getaddrinfo failed for \"%s\": %s\n",
+                    addrstr, gai_strerror(gai_res));
+            return 0;
+        }
     }
     else
     {
@@ -501,18 +501,18 @@ print_addr_info(struct addrinfo *addr_res, char *addrstr)
     int i;
 
     for (naddrs = 0, addr=addr_res; addr != NULL; addr = addr->ai_next)
-	naddrs++;
+        naddrs++;
 
     for (i = 0, addr=addr_res; addr != NULL; addr = addr->ai_next)
     {
-	struct sockaddr *saddr = addr->ai_addr;
-	char host[100] = {'\0',};
-	char serv[100] = {'\0',};
-	int gni_res;
-	gni_res = getnameinfo(saddr, addr->ai_addrlen,
-			      host, 99, serv, 99,
-			      NI_NUMERICHOST | NI_NUMERICSERV);
-	if (gni_res == 0)
+        struct sockaddr *saddr = addr->ai_addr;
+        char host[100] = {'\0',};
+        char serv[100] = {'\0',};
+        int gni_res;
+        gni_res = getnameinfo(saddr, addr->ai_addrlen,
+                              host, 99, serv, 99,
+                              NI_NUMERICHOST | NI_NUMERICSERV);
+        if (gni_res == 0)
         {
             if (i == 0)
             {
@@ -535,7 +535,7 @@ print_addr_info(struct addrinfo *addr_res, char *addrstr)
                     gai_strerror(gni_res));
         }
 
-	i++;
+        i++;
     }
     printf("\n");
 }
