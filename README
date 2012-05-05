@@ -1,0 +1,70 @@
+This provides two tools for experimenting with SCTP multihoming on
+IPv4 and IPv6.
+
+The sbindx program (sbindx.c) lets you open an IPv4 or IPv6 socket and
+tweak various calls to bind and sctp_bindx. It can then optionally be
+set to listen to incoming connections and messages.
+
+The sclient is an Erlang program that can be used to connect to the
+sctp socket opened by sbindx.
+
+Here are some examples of how to start sbindx:
+
+  Open an IPv6 socket on ::1 and listen for incoming connections
+  # sbindx socket:6 bind:6:localhost listen recv
+
+  Open an IPv6 socket on bind and then call sctp_bindx twice, the first time
+  with two addresses, then second time with only one address.
+  # sbindx socket:6 \
+           bind:6:localhost \
+           sctp_bindx:6:fc00::1,6:fc00::2 \
+           sctp_bindx:6:fc00::3 \
+           listen \
+           recv
+
+  Open an IPv6 socket on bind and then call once sctp_bindx with an IPv6
+  address, an IPv4 address and an IPv4-mapped IPv6 address
+  (Mixing IPv4 and IPv6 addresses works on Linux)
+  # sbindx socket:6
+           bind:6:localhost \
+           sctp_bindx:6:fc00::1,4:192.168.1.1,6:::ffff:192.168.1.2
+           listen \
+           recv
+
+The port defaults to 10499 for no particular reason, specify it with a
+slash (since colon is already used in IPv6 addresses) like below:
+(Well, maybe I ought have chosen '[]'s instead of slash...)
+
+  # sbindx socket:6 bind:6:localhost/3399  listen recv
+
+  The first time you specify a port, it becomes the default port
+  for any subsequent addresses:
+  # sbindx socket:6 \
+           bind:6:localhost/3399 \
+           sctp_bindx:6:fc00::1 \
+           listen \
+           recv
+
+  ... but it is possible to specify using different ports, though
+  most sctp stacks will probably not accept this:
+  # sbindx socket:6 \
+           bind:6:localhost/3399 \
+           sctp_bindx:6:fc00::1/3340 \
+           listen \
+           recv
+
+And here are a few examples of how to connect using sclient (typically
+run concurrently from another terminal window or so).  You need to
+have Erlang installed.
+
+  # sclient 6:localhost
+
+  # sclient 4:192.168.1.1
+
+  Here's how to specify a port number
+  # sclient 6:localhost/3399
+
+  It is also possible to specify the address tuple by hand,
+  it was useful to me when resolving failed for some reason in
+  a virtual machine I had during testing.
+  # sclient 6:'{0,0,0,0,0,16#ffff,16#c0a8,16#0102}'
