@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <poll.h>
 #include <errno.h>
+#include <stdlib.h>
 
 static int eval_command(char *);
 static char *is_cmd(char *s, char *cmd);
@@ -60,9 +61,9 @@ eval_command(char *cmd)
     else if ((arg = is_cmd(cmd, "listen")))      return cmd_listen(arg);
     else if ((arg = is_cmd(cmd, "recv")))        return cmd_recv(arg);
     else if ((arg = is_cmd(cmd, "sleep:")))      return cmd_sleep(arg);
-    else if ((arg = is_cmd(cmd, "--help")))      return cmd_usage(arg);
-    else if ((arg = is_cmd(cmd, "-h")))          return cmd_usage(arg);
-    else if ((arg = is_cmd(cmd, "help")))        return cmd_usage(arg);
+    else if ((arg = is_cmd(cmd, "--help")))      { cmd_usage(arg); exit(0); }
+    else if ((arg = is_cmd(cmd, "-h")))          { cmd_usage(arg); exit(0); }
+    else if ((arg = is_cmd(cmd, "help")))        { cmd_usage(arg); exit(0); }
     else
     {
         fprintf(stderr, "Invalid cmd: \"%s\"\n", cmd);
