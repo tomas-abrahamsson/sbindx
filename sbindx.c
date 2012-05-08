@@ -203,7 +203,6 @@ cmd_bind(char *arg)
         perror("bind");
         return 0;
     }
-    printf("socket bound\n\n");
 
     if (addrport == 0)
     {
@@ -215,6 +214,8 @@ cmd_bind(char *arg)
         port = get_sockaddr_port((struct sockaddr *)&sockaddr);
         printf("Port dynamically bound to %d\n", port);
     }
+
+    printf("socket bound\n\n");
 
     return 1;
 }
