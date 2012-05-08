@@ -25,7 +25,8 @@ static char char_or_dot(unsigned char c);
 static int getaddrport(int family, char *addrstr0, struct addrinfo **addr_res);
 static void print_addr_info(struct addrinfo *addr, char *addrstr);
 static int verify_addr_family_indicator(char *arg);
-static int parse_addr(char *arg, char *dest, int *addrlen);
+static int parse_addr(char *arg, char *dest, socklen_t *addrlen);
+static int get_sockaddr_port(struct sockaddr *sockaddr);
 
 static char *progname;
 static int s=-1;
@@ -169,7 +170,8 @@ cmd_bind(char *arg)
 {
     char *addrstr = arg;
     struct sockaddr_storage sockaddr;
-    int addrlen;
+    socklen_t addrlen;
+    int addrport;
 
     printf("binding...\n");
     if (s == -1)
@@ -194,12 +196,25 @@ cmd_bind(char *arg)
     if (!parse_addr(addrstr, (char *)&sockaddr, &addrlen))
         return 0;
 
+    addrport = get_sockaddr_port((struct sockaddr *)&sockaddr);
+
     if (bind(s, (struct sockaddr *)&sockaddr, addrlen) < 0)
     {
         perror("bind");
         return 0;
     }
     printf("socket bound\n\n");
+
+    if (addrport == 0)
+    {
+        if (getsockname(s, (struct sockaddr *)&sockaddr, &addrlen) < 0)
+        {
+            perror("getsockname after bind");
+            return 0;
+        }
+        port = get_sockaddr_port((struct sockaddr *)&sockaddr);
+        printf("Port dynamically bound to %d\n", port);
+    }
 
     return 1;
 }
@@ -228,7 +243,7 @@ cmd_sctp_bindx(char *arg)
         char addrstr[1000];
         memset(addrstr, '\0', 1000);
         char *comma;
-        int addrlen;
+        socklen_t addrlen;
 
         if ((comma = strchr(s2, ',')) != NULL)
             strncpy(addrstr, s2, comma-s2);
@@ -440,7 +455,7 @@ verify_addr_family_indicator(char *arg)
 }
 
 static int
-parse_addr(char *arg, char *dest, int *addrlen)
+parse_addr(char *arg, char *dest, socklen_t *addrlen)
 {
     char *addrstr;
 
@@ -540,6 +555,24 @@ print_addr_info(struct addrinfo *addr_res, char *addrstr)
     }
     printf("\n");
 }
+
+static int
+get_sockaddr_port(struct sockaddr *sockaddr)
+{
+    switch (((struct sockaddr_in *)sockaddr)->sin_family)
+    {
+        case AF_INET:
+            return ntohs(((struct sockaddr_in *)sockaddr)->sin_port);
+        case AF_INET6:
+            return ntohs(((struct sockaddr_in6 *)sockaddr)->sin6_port);
+        default:
+            fprintf(stderr,
+                    "Unexpected address family returned: %d\n",
+                    ((struct sockaddr_in *)sockaddr)->sin_family);
+            exit(1);
+    }
+}
+
 
 /*
  * Local Variables:
