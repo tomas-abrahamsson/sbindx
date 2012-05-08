@@ -577,18 +577,7 @@ get_sockaddr_port(struct sockaddr *sockaddr)
 /*
  * Local Variables:
  * c-basic-offset:4
- * c-offsets-alist:'((substatement-open . 0))
+ * c-offsets-alist:'((substatement-open . 0) (case-label . +) (statement-case-intro . +))
  * indent-tabs-mode:nil
- * compile-command:"gcc -Wall -g -o sbindx sbindx.c -lsctp"
  * End:
- *
- * Linux:
- * compile-command:"gcc -Wall -g -o sbindx sbindx.c -lsctp"
- *
- * Solaris/Openindiana:
- * compile-command:"gcc -Wall -g -o sbindx sbindx.c -lsocket -lnsl -lsctp"
- * http://pdconsec.net/blogs/davidr/archive/2011/07/19/solaris-express-static-ips-the-right-way.aspx
- *
- * FreeBSD:
- * compile-command:"gcc -Wall -g -o sbindx sbindx.c"
  */
